@@ -1,44 +1,29 @@
 package services;
 
 import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
-
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-
-import org.testng.Assert;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import static io.restassured.RestAssured.given;
 
 public class PostRequest {
 
-	public static Response send_pst() {
+	protected JSONArray orders;
 
-		String requestBody = "{\n" + "  \"name\": \"formystudents\",\n" + "  \"job\": \"qaProffessional\"\n}";
-
+	public Response createBooking(JSONObject booking) {
 		RestAssured.baseURI = "https://restful-booker.herokuapp.com";
-
-		Response response = (Response) given()
-				.header("Content-type", "application/json")
-				.and().body(requestBody)
-				.when()
-				.post("/api/users")
-				.then()
-				.extract();
-
-		// String s_repronse=response.toString();
-
-		// System.out.println(s_repronse);
-
-		return (response);
-
+			Response response = (Response) given()
+					.header("Content-type", "application/json")
+					.and().body(booking)
+					.when()
+					.post("/booking")
+					.then()
+					.extract();
+			return (response);
+		}
 		// response.jsonPath().getString("id");
 
 		// System.out.println(response.getStatusCode()+"
 		// "+response.jsonPath().getString("id")+" "+i);
-
-	}
-
 }
