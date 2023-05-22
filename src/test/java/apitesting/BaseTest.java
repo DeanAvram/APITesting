@@ -6,10 +6,13 @@ import org.json.simple.parser.ParseException;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class BaseTest {
     protected JSONArray bookings;
+    static FileWriter myWriter;
+
 
     public void jsonInit(String path) throws IOException, ParseException {
         try {

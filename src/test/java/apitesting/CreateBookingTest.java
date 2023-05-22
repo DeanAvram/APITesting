@@ -1,8 +1,8 @@
 package apitesting;
 
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import io.restassured.response.ResponseBody;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
@@ -11,56 +11,82 @@ import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 import services.GetRequest;
 import services.PostRequest;
-
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import java.io.FileWriter;
 import java.io.IOException;
 
 
-public class CreateBookingTest {
-	
-	private BaseTest baseTest;
+public class CreateBookingTest extends BaseTest{
 
 	private GetRequest getRequest;
 	private PostRequest postRequest;
-	Logger logger = LogManager.getLogger(CreateBookingTest.class);
 
 	@Before
 	public void setUp() {
-		this.baseTest = new BaseTest();
 		this.postRequest = new PostRequest();
 		this.getRequest = new GetRequest();
+	}
+
+	@BeforeClass
+	public static void setUpBeforeClass() {
+		try {
+			myWriter = new FileWriter("postLog.txt");
+			myWriter.write("String_Log\n");
+		} catch (IOException e) {
+			System.err.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+		myWriter.close();
 	}
 	
 	@Test
 	public void testCerateBooking() throws IOException, ParseException {
-		logger.info("starting create booking test");
-		baseTest.jsonInit("data/orders.json");
-		logger.debug("parse bookings from json");
+		myWriter.append("\n");
+		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking test"));
+		jsonInit("data/orders.json");
+		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
 		Response postResponse = null;
 		int i = 1;
-		for (Object obj : baseTest.bookings) {
-			logger.debug("testing booking #" + i);
+		for (Object obj : bookings) {
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "testing booking #" + i));
 			JSONObject booking = (JSONObject) obj;
 			postResponse = postRequest.createBooking(booking);
-			logger.debug("create a booking with post request");
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "create a booking with post request"));
 			int responseCode = postResponse.getStatusCode();
 			String bookingid = postResponse.jsonPath().getString("bookingid");
-			logger.debug("post response returned: " + responseCode);
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "post response returned: " + responseCode));
 			if (responseCode != 200){
-				logger.error("ERROR with POST request");
-				logger.error("Test finished with errors");
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "ERROR with POST request"));
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Test finished with errors"));
 				System.exit(1);
 			}
-			logger.debug("post request finished successfully");
+
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "post request finished successfully"));
 			Response getResponse = getRequest.getSpecificBooking(bookingid);
-			logger.debug("looking for booking id: " + bookingid);
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "looking for booking id: " + bookingid));
 			if (getResponse.statusCode() != 200){
-				logger.error("Did not find booking id: " + bookingid);
-				logger.error("Test finished with errors");
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Did not find booking id:" + bookingid));
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Test finished with errors"));
 				System.exit(1);
 			}
-			String xx = getResponse.jsonPath().getString("booking");
-			String foundBookingId = getResponse.jsonPath().getString("bookingid");
-			logger.debug("found booking id: " + foundBookingId);
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "found booking with id: " + bookingid));
+			String getBody = getResponse.getBody().asString();
+			String postBody = postResponse.getBody().jsonPath().getJsonObject("booking");
+			if (getBody.equals(postBody)){
+
+			}
+			else{
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Post response and get response are different"));
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Test finished with errors"));
+				System.exit(1);
+			}
+			//System.out.println("GET: " + getResponse.getBody().asString());
+			//System.out.println("POST BODY" + postResponse.getBody().jsonPath().getJsonObject("booking"));
 			i++;
 		}
 		System.out.println(postResponse.body().asString());
