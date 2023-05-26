@@ -1,8 +1,6 @@
 package apitesting;
 
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import io.restassured.response.ResponseBody;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
@@ -18,9 +16,6 @@ import java.io.IOException;
 
 
 public class CheckDatesTest extends BaseTest{
-
-	private GetRequest getRequest;
-	private PostRequest postRequest;
 
 	@Before
 	public void setUp() {
@@ -44,18 +39,17 @@ public class CheckDatesTest extends BaseTest{
 		myWriter.close();
 	}
 
-	//@Test
+	@Test
 	public void testCreateBookingWithFullAndLegalBody() throws IOException, ParseException {
 		myWriter.append("\n");
 		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with full body test"));
-		jsonInit("data/LegalBookings.json");
+		jsonListInit("data/LegalBookings.json");
 		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
-		Response postResponse = null;
 		int i = 1;
 		for (Object obj : bookings) {
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "testing booking #" + i));
 			JSONObject booking = (JSONObject) obj;
-			postResponse = postRequest.createBooking(booking);
+			Response postResponse = postRequest.createBooking(booking);
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "create a booking with post request"));
 			int responseCode = postResponse.getStatusCode();
 			String bookingid = postResponse.jsonPath().getString("bookingid");
@@ -63,6 +57,7 @@ public class CheckDatesTest extends BaseTest{
 			if (responseCode != 200){
 				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "ERROR with POST request"));
 				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Test finished with errors"));
+				return;
 			}
 
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "post request finished successfully"));
@@ -71,9 +66,10 @@ public class CheckDatesTest extends BaseTest{
 			if (getResponse.statusCode() != 200){
 				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Did not find booking id:" + bookingid));
 				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Test finished with errors"));
+				return;
 			}
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "found booking with id: " + bookingid));
-			String getBody = getResponse.getBody().asString();
+			String getBody = getResponse.getBody().jsonPath().getJsonObject("").toString();
 			String postBody = postResponse.getBody().jsonPath().getJsonObject("booking").toString();
 			if (getBody.equals(postBody))
 				myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "Booking #" + i + " created successfully"));
@@ -92,16 +88,16 @@ public class CheckDatesTest extends BaseTest{
 	public void testCreateBookingWithoutBookingDates() throws IOException, ParseException {
 		myWriter.append("\n");
 		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking without booking dates test"));
-		jsonInit("data/BookingsWithoutDates.json");
+		jsonListInit("data/BookingsWithoutDates.json");
 		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
-		Response postResponse = null;
 		int i = 1;
 		for (Object obj : bookings) {
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "testing booking #" + i));
 			JSONObject booking = (JSONObject) obj;
-			postResponse = postRequest.createBooking(booking);
+			Response postResponse = postRequest.createBooking(booking);
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "create a booking with post request"));
 			int responseCode = postResponse.getStatusCode();
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "post response returned: " + responseCode));
 			if (responseCode >= 200 && responseCode <= 299){
 				//got a successful response instead of error
 				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Created a booking despite that there are no dates"));
@@ -121,16 +117,16 @@ public class CheckDatesTest extends BaseTest{
 	public void testCreateBookingWithOldBookingDates() throws IOException, ParseException {
 		myWriter.append("\n");
 		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with old booking dates test"));
-		jsonInit("data/BookingsWithOldDates.json");
+		jsonListInit("data/BookingsWithOldDates.json");
 		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
-		Response postResponse = null;
 		int i = 1;
 		for (Object obj : bookings) {
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "testing booking #" + i));
 			JSONObject booking = (JSONObject) obj;
-			postResponse = postRequest.createBooking(booking);
+			Response postResponse = postRequest.createBooking(booking);
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "create a booking with post request"));
 			int responseCode = postResponse.getStatusCode();
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "post response returned: " + responseCode));
 			if (responseCode >= 200 && responseCode <= 299){
 				//got a successful response instead of error
 				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Created a booking despite that the dates are old"));
@@ -146,7 +142,7 @@ public class CheckDatesTest extends BaseTest{
 	}
 	
 	
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 
 		  JUnitCore junit = new JUnitCore();
 		  junit.addListener(new TextListener(System.out));

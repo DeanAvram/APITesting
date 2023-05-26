@@ -1,18 +1,21 @@
 package apitesting;
 
+import io.restassured.response.Response;
+import org.json.simple.JSONObject;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.internal.TextListener;
 import services.GetRequest;
 import services.PostRequest;
+import org.json.simple.parser.ParseException;
+import org.junit.runner.JUnitCore;
 
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class CheckNamesTest extends BaseTest{
-
-    private GetRequest getRequest;
-    private PostRequest postRequest;
 
     @Before
     public void setUp() {
@@ -39,20 +42,20 @@ public class CheckNamesTest extends BaseTest{
     @Test
 	public void testCreateBookingwithoutNames() throws IOException, ParseException {
 		myWriter.append("\n");
-		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with string null"));
-		jsonInit("data/BookingsWithoutNames.json");
+		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with no first and last name"));
+		jsonListInit("data/BookingsWithoutNames.json");
 		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
-		Response postResponse = null;
 		int i = 1;
 		for (Object obj : bookings) {
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "testing booking #" + i));
 			JSONObject booking = (JSONObject) obj;
-			postResponse = postRequest.createBooking(booking);
+			Response postResponse = postRequest.createBooking(booking);
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "create a booking with post request"));
 			int responseCode = postResponse.getStatusCode();
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "post response returned: " + responseCode));
 			if (responseCode >= 200 && responseCode <= 299){
 				//got a successful response instead of error
-				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Created a booking despite name being null"));
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Created a booking despite first and last name are null"));
 				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Test finished with errors"));
 				return;
 			}
@@ -61,28 +64,28 @@ public class CheckNamesTest extends BaseTest{
 			}
 			i++;
 		}
-		myWriter.append(Helper.logHelper(Helper.LogType.PASS, "Create booking with the name in the JSON being null"));
+		myWriter.append(Helper.logHelper(Helper.LogType.PASS, "Create booking without first and last name Test finished successfully"));
 	}
 
 
 	@Test
 	public void testCreateBookingEmptyName() throws IOException, ParseException {
 		myWriter.append("\n");
-		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with empty string in the name"));
-		jsonInit("data/BookingsWithEmptyName.json");
+		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with empty first and last name"));
+		jsonListInit("data/BookingsWithEmptyName.json");
 		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
-		Response postResponse = null;
 		int i = 1;
 		for (Object obj : bookings) {
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "testing booking #" + i));
 			JSONObject booking = (JSONObject) obj;
-			postResponse = postRequest.createBooking(booking);
+			Response postResponse = postRequest.createBooking(booking);
 			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "create a booking with post request"));
 			int responseCode = postResponse.getStatusCode();
+			myWriter.append(Helper.logHelper(Helper.LogType.DEBUG, "post response returned: " + responseCode));
 			if (responseCode >= 200 && responseCode <= 299){
 				//got a successful response instead of error
-				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Created a booking despite empty string"));
-				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Create booking with old booking dates finished with errors"));
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Created a booking despite empty first name and last name"));
+				myWriter.append(Helper.logHelper(Helper.LogType.ERROR, "Create booking with empty first and last name finished with errors"));
 				return;
 			}
 			else {
@@ -90,11 +93,11 @@ public class CheckNamesTest extends BaseTest{
 			}
 			i++;
 		}
-		myWriter.append(Helper.logHelper(Helper.LogType.PASS, "Create booking with empty string Test finished successfully"));
+		myWriter.append(Helper.logHelper(Helper.LogType.PASS, "Create booking with empty first and last name Test finished successfully"));
 	}
 	
 	
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 
 		  JUnitCore junit = new JUnitCore();
 		  junit.addListener(new TextListener(System.out));
