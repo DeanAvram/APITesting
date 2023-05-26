@@ -37,10 +37,10 @@ public class CheckNamesTest extends BaseTest{
     }
     
     @Test
-	public void testCreateBookingWithStringNull() throws IOException, ParseException {
+	public void testCreateBookingwithoutNames() throws IOException, ParseException {
 		myWriter.append("\n");
 		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with string null"));
-		jsonInit("data/BookingsWithStringNull.json");
+		jsonInit("data/BookingsWithoutNames.json");
 		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
 		Response postResponse = null;
 		int i = 1;
@@ -66,10 +66,10 @@ public class CheckNamesTest extends BaseTest{
 
 
 	@Test
-	public void testCreateBookingEmptyString() throws IOException, ParseException {
+	public void testCreateBookingEmptyName() throws IOException, ParseException {
 		myWriter.append("\n");
 		myWriter.append(Helper.logHelper(Helper.LogType.START, "starting create booking with empty string in the name"));
-		jsonInit("data/BookingsWithNoName.json");
+		jsonInit("data/BookingsWithEmptyName.json");
 		myWriter.append(Helper.logHelper(Helper.LogType.INFO, "parse bookings from json"));
 		Response postResponse = null;
 		int i = 1;
