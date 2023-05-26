@@ -1,12 +1,12 @@
 [{
-  "firstname" : "Dean",
-  "lastname" : "Omer",
+  "firstname" : "",
+  "lastname" : "",
   "totalprice" : 110,
   "depositpaid" : true,
   "bookingdates" : {
-    "checkin" : "2018-01-01",
-    "checkout" : "2019-01-01"
+    "checkin" : "2024-01-01",
+    "checkout" : "2024-01-02"
   },
   "additionalneeds" : "Breakfast"
 }
-  ]
+]
